@@ -10,9 +10,24 @@ export const app = express();
 
 app.disable("x-powered-by");
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+// app.use(
+//   cors({
+//     origin: env.clientOrigin.split(",").map((origin) => origin.trim()),
+//   }),
+// );
 app.use(
   cors({
-    origin: env.clientOrigin.split(",").map((origin) => origin.trim()),
+    origin(origin, callback) {
+      if (
+        !origin ||
+        origin === "http://localhost:5173" ||
+        origin.endsWith(".pages.dev")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
   }),
 );
 app.use(express.json({ limit: "32kb" }));
